@@ -1,0 +1,36 @@
+{
+  "name": "testas",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "vite build && tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@fastify/middie": "^9.0.0",
+    "@fastify/static": "^8.0.0",
+    "@fastify/vite": "^7.0.0",
+    "@inertiajs/react": "^2.0.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "fastify": "^5.0.0",
+    "fastify-plugin": "^5.0.0",
+    "lucide-react": "^0.556.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^22.19.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0"
+  }
+}
