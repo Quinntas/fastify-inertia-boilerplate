@@ -2,6 +2,13 @@ import fp from 'fastify-plugin';
 import { FastifyPluginAsync, FastifyReply } from 'fastify';
 import path from 'path';
 import fs from 'fs';
+import { InertiaPage, InertiaPageMap } from '../shared/inertia';
+
+type InertiaProp<T> = T | Promise<T> | (() => T) | (() => Promise<T>);
+
+type InertiaProps<T> = {
+  [K in keyof T]: InertiaProp<T[K]>;
+};
 
 export interface InertiaOptions {
   isProduction: boolean;
@@ -11,8 +18,15 @@ export interface InertiaOptions {
 }
 
 declare module 'fastify' {
+  interface FastifyContextConfig {
+    inertiaComponent?: InertiaPage;
+  }
+
   interface FastifyReply {
-    renderInertia(component: string, props?: Record<string, any>): Promise<void>;
+    renderInertia<Page extends keyof InertiaPageMap>(
+      component: Page,
+      props?: InertiaProps<InertiaPageMap[Page]>
+    ): Promise<void>;
   }
 }
 
@@ -21,7 +35,7 @@ const inertiaPlugin: FastifyPluginAsync<InertiaOptions> = async (fastify, option
 
   let templateCache: string | null = null;
 
-  fastify.decorateReply('renderInertia', async function (component: string, props: Record<string, any> = {}) {
+  fastify.decorateReply('renderInertia', async function (component: InertiaPage, props: Record<string, any> = {}) {
     const reply = this as FastifyReply;
     const request = reply.request;
     const url = request.raw.url || '';
@@ -37,9 +51,37 @@ const inertiaPlugin: FastifyPluginAsync<InertiaOptions> = async (fastify, option
         .send();
     }
 
+    // Support for partial reloads
+    const partialComponent = request.headers['x-inertia-partial-component'];
+    const partialDataHeader = request.headers['x-inertia-partial-data'];
+    const partialData = typeof partialDataHeader === 'string' ? partialDataHeader.split(',') : [];
+
+    let finalProps = props;
+
+    if (partialComponent && partialComponent === component && partialData.length > 0) {
+      finalProps = {};
+      partialData.forEach((key) => {
+        if (key in props) {
+          finalProps[key] = props[key];
+        }
+      });
+    }
+
+    // Resolve promises and functions (lazy evaluation)
+    const resolvedProps: Record<string, any> = {};
+    for (const key in finalProps) {
+      let value = finalProps[key];
+      if (typeof value === 'function') {
+        value = await value();
+      } else if (value instanceof Promise) {
+        value = await value;
+      }
+      resolvedProps[key] = value;
+    }
+
     const page = {
       component,
-      props,
+      props: resolvedProps,
       url,
       version,
     };

@@ -1,6 +1,11 @@
 import { createRoot } from 'react-dom/client';
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 import './css/app.css';
+
+router.on('start', () => NProgress.start());
+router.on('finish', () => NProgress.done());
 
 createInertiaApp({
   resolve: (name) => {
