@@ -5,9 +5,9 @@ import fastifyStatic from '@fastify/static';
 import middie from '@fastify/middie';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import inertiaPlugin from './plugins/inertia';
-import { contactSchema } from './shared/contactSchema';
-import { userParamsSchema, userQuerySchema } from './shared/userSchemas';
+import inertiaPlugin from './plugins/inertia.js';
+import { contactSchema } from './shared/contactSchema.js';
+import { userParamsSchema, userQuerySchema } from './shared/userSchemas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
